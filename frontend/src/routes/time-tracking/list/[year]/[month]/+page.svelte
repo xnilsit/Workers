@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import PageHeadline from '$lib/components/PageHeadline.svelte';
 import PrintedTimeSheet from '$lib/components/timeSheet/PrintedTimeSheet.svelte';
 import TopNavigation from '$lib/components/TopNavigation.svelte';
@@ -14,6 +14,7 @@ const printTimeSheet = async () => {
     printing = true;
 
     await tick();
+    await new Promise<void>(resolve => requestAnimationFrame(() => setTimeout(resolve, 100)));
     window.print();
 }
 
