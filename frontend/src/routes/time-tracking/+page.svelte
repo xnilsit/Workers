@@ -3,7 +3,7 @@ import { invalidateAll } from "$app/navigation";
 import PageHeadline from "$lib/components/PageHeadline.svelte";
 import TopNavigation from "$lib/components/TopNavigation.svelte";
 import { fetchApi } from "$lib/fetchApi";
-import { Bell, CalendarClock, ChevronDown, ChevronRight, LayoutList, } from "@lucide/svelte";
+import { Bell, CalendarClock, ChevronDown, ChevronRight, LayoutList, Pen, } from "@lucide/svelte";
 import { Navigation } from "@skeletonlabs/skeleton-svelte";
 
 const { data } = $props();
@@ -16,6 +16,8 @@ let breakDuration = $state(0);
 let end = $state('');
 
 let entryInputs: Record<number, { start: string; breakDuration: number; end: string }> = $state({});
+
+let editingEntryId: string | null = $state(null);
 
 const ensureTimeSheet = async (): Promise<string | null> => {
     let timeSheetId = data.timeSheet?.id;
@@ -55,6 +57,23 @@ const saveForDay = (dayIndex: number) => {
     const input = entryInputs[dayIndex];
     if (!input) return;
     saveEntry(dayIndex, input.start, input.breakDuration, input.end);
+}
+
+const updateForDay = async (dayIndex: number, entryId: string) => {
+    const input = entryInputs[dayIndex];
+    if (!input) return;
+    try {
+        await fetchApi(`time-sheets/entries/${entryId}`, 'PUT', {
+            day: dayIndex,
+            start: input.start,
+            breakDuration: input.breakDuration,
+            end: input.end
+        });
+        editingEntryId = null;
+        await invalidateAll();
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 </script>
@@ -107,13 +126,35 @@ const saveForDay = (dayIndex: number) => {
         <div class="flex flex-col mt-4 w-full">
             {#each data.timeSheet.entries as entry, index}
                 {#if entry}
-                    <div style="grid-template-columns: 6% auto;" class="grid gap-2 border-b px-2">
-                        <div class="border-r pr-2 font-bold">{entry.day}</div>
-                        <div class="flex justify-between w-full">
-                            <div>{entry.start} - {entry.end} (Pause: {entry.breakDuration} Min)</div>
-                            <div>{entry.totalHours} Std</div>
+                    {#if editingEntryId === entry.id}
+                        <div style="grid-template-columns: 6% auto;" class="grid gap-2 border-b w-full h- bg-surface-100-900 px-2">
+                            <div class="border-r pr-2 font-bold">{index + 1}</div>
+                            <div class="flex flex-col gap-2 py-2">
+                                <div class="flex gap-2">
+                                    <input placeholder="Beginn" step="1800" type="time" style="display:inline-block; width:33.33%" oninput={(e) => { entryInputs[index + 1] = { ...entryInputs[index + 1] ?? { start: '', breakDuration: 0, end: '' }, start: e.currentTarget.value }; }} />
+                                    <input placeholder="Pause" type="number" style="display:inline-block; width:33.33%" oninput={(e) => { entryInputs[index + 1] = { ...entryInputs[index + 1] ?? { start: '', breakDuration: 0, end: '' }, breakDuration: Number(e.currentTarget.value) }; }} />
+                                    <input placeholder="Ende" step="1800" type="time" style="display:inline-block; width:33.33%" oninput={(e) => { entryInputs[index + 1] = { ...entryInputs[index + 1] ?? { start: '', breakDuration: 0, end: '' }, end: e.currentTarget.value }; }} />
+                                </div>
+                                <button class="btn btn-sm preset-filled mb-2" onclick={() => updateForDay(index + 1, entry.id)}>
+                                    Hinzufügen
+                                    <ChevronRight size="16"/>
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    {:else}
+                        <div style="grid-template-columns: 6% auto;" class="grid gap-2 border-b px-2">
+                            <div class="border-r pr-2 font-bold">{entry.day}</div>
+                            <div class="flex justify-between w-full">
+                                <div>{entry.start} - {entry.end} (Pause: {entry.breakDuration} Min)</div>
+                                <div>
+                                    {entry.totalHours} Std
+                                    <button onclick={() => editingEntryId = entry.id}>
+                                        <Pen size="16" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {/if}
                 {:else if index < new Date().getDate() - 1}
                     <div style="grid-template-columns: 6% auto;" class="grid gap-2 border-b w-full h- bg-surface-100-900 px-2">
                         <div class="border-r pr-2 font-bold">{index + 1}</div>
