@@ -4,28 +4,15 @@ import PrintedTimeSheet from '$lib/components/timeSheet/PrintedTimeSheet.svelte'
 import TopNavigation from '$lib/components/TopNavigation.svelte';
 import { Printer } from '@lucide/svelte';
 import { Navigation } from '@skeletonlabs/skeleton-svelte';
-import { tick } from 'svelte';
 
 const { data } = $props();
-
-let printing = $state(false);
-
-const printTimeSheet = async () => {
-    printing = true;
-
-    await tick();
-    await new Promise<void>(resolve => requestAnimationFrame(() => setTimeout(resolve, 100)));
-    window.print();
-}
 
 $inspect(data);
 </script>
 
-<svelte:window onafterprint={async () => {printing = false;}} />
-
-{#if !printing}
+<div class="screen-only">
     <TopNavigation>
-        <Navigation.TriggerAnchor onclick={printTimeSheet}>
+        <Navigation.TriggerAnchor onclick={() => window.print()}>
             <Printer />
             <Navigation.TriggerText>Drucken</Navigation.TriggerText>
         </Navigation.TriggerAnchor>
@@ -62,6 +49,17 @@ $inspect(data);
             </tbody>
         </table>
     </main>
-{:else}
+</div>
+
+<div class="print-only">
     <PrintedTimeSheet timeSheet={data.timeSheet} />
-{/if}
+</div>
+
+<style>
+    .print-only { display: none; }
+
+    @media print {
+        .screen-only { display: none; }
+        .print-only  { display: block; }
+    }
+</style>
