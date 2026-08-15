@@ -1,15 +1,22 @@
-import { fetchApi } from '$lib/fetchApi.js';
+import { PUBLIC_BACKEND_URL } from '$env/static/public';
 import { error } from '@sveltejs/kit';
 
-export const load = async ({ params }) => {
+export const load = async ({ params, parent, fetch }) => {
+    const { token } = await parent();
     const { id } = params;
 
-    // Fetch the delivery note data from the backend using the ID
-    const json = await fetchApi(`delivery-note/${id}`);
-    
-    if(json.error) {
-        error(404, 'Delivery note not found');
+    const res = await fetch(`${PUBLIC_BACKEND_URL}/delivery-note/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: null
+    });
+
+    if (!res.ok) {
+        error(res.status === 404 ? 404 : 500, 'Delivery note not found');
     }
 
-    return json;
+    return res.json();
 }
