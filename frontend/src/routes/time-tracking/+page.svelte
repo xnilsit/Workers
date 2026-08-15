@@ -4,7 +4,7 @@ import PageHeadline from "$lib/components/PageHeadline.svelte";
 import SlidingOverlay from "$lib/components/SlidingOverlay.svelte";
 import TopNavigation from "$lib/components/TopNavigation.svelte";
 import { fetchApi } from "$lib/fetchApi";
-import { Bell, CalendarClock, ChevronDown, ChevronRight, LayoutList, Pen, } from "@lucide/svelte";
+import { Bell, CalendarClock, ChevronDown, ChevronRight, Hospital, LayoutList, PartyPopper, Pen, TreePalm } from "@lucide/svelte";
 import { Navigation } from "@skeletonlabs/skeleton-svelte";
 
 const { data } = $props();
@@ -101,6 +101,28 @@ const editEntry = (entryId: string) => {
     editingEntryId = entryId;
 }
 
+const saveEntryType = async (entryDay: number, type: number) => {
+    try {
+        const timeSheetId = await ensureTimeSheet();
+        await fetchApi(`time-sheets/${timeSheetId}/entries`, 'POST', { day: entryDay, type });
+        await invalidateAll();
+        newEntry = false;
+        dayIndex = null;
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+const updateEntryType = async (entryId: string, type: number) => {
+    try {
+        await fetchApi(`time-sheets/entries/${entryId}`, 'PUT', { type });
+        editingEntryId = null;
+        await invalidateAll();
+    } catch (e) {
+        console.error(e);
+    }
+}
+
 let newEntry = $state(false);
 
 let dayIndex: number | null = $state(null);
@@ -142,7 +164,7 @@ const addNew = () => {
              {/snippet}
 
              {#snippet body()}
-                <div class="flex flex-col gap-2 border-b pb-4 mb-4">
+                <div class="flex flex-col gap-2 pb-4 mb-4">
                     <label>
                         <span class="label-text">Beginn</span>
                         <input class="input bg-surface-50" step="1800" type="time" placeholder="Beginn (8:00)" bind:value={start} />
@@ -158,6 +180,23 @@ const addNew = () => {
                     <button onclick={saveToday} type="button" class="btn preset-filled">
                         Tag hinzufügen
                         <ChevronDown />
+                    </button>
+
+                    <hr class="hr"/>
+
+                    <button onclick={() => saveEntryType(day, 4)} type="button" class="btn preset-filled">
+                        Urlaub
+                        <TreePalm />
+                    </button>
+
+                    <button onclick={() => saveEntryType(day, 3)} type="button" class="btn preset-filled">
+                        Krank
+                        <Hospital />
+                    </button>
+
+                    <button onclick={() => saveEntryType(day, 2)} type="button" class="btn preset-filled">
+                        Feiertag
+                        <PartyPopper />
                     </button>
                 </div>
              {/snippet}
@@ -175,7 +214,17 @@ const addNew = () => {
                     <div style="grid-template-columns: 6% auto;" class="grid gap-2 border-b px-2">
                         <div class="border-r pr-2 font-bold">{entry.day}</div>
                         <div class="flex justify-between w-full">
-                            <div>{entry.start} - {entry.end} (Pause: {entry.breakDuration} Min)</div>
+                            <div>
+                                {#if entry.type === 'work'}
+                                    {entry.start} - {entry.end} (Pause: {entry.breakDuration} Min)
+                                {:else if entry.type === 'vacation'}
+                                    Urlaub
+                                {:else if entry.type === 'sick_leave'}
+                                    Krank
+                                {:else if entry.type === 'holiday'}
+                                    Feiertag
+                                {/if}
+                            </div>
                             <div>
                                 {entry.totalHours} Std
                                 <button onclick={() => editEntry(entry.id)}>
@@ -192,7 +241,7 @@ const addNew = () => {
                             {/snippet}
 
                             {#snippet body()}
-                                <div class="flex flex-col gap-2 border-b pb-4 mb-4">
+                                <div class="flex flex-col gap-2 pb-4 mb-4">
                                     <label>
                                         <span class="label-text">Beginn</span>
                                         <input class="input bg-surface-50" step="1800" type="time" placeholder="Beginn (8:00)" bind:value={start}/>
@@ -207,7 +256,24 @@ const addNew = () => {
                                     </label>
                                     <button onclick={() => updateForDay(index + 1, { id: entry.id, start, breakDuration, end })} type="button" class="btn preset-filled">
                                         Speichern
-                                        <ChevronDown />
+                                        <ChevronRight />
+                                    </button>
+
+                                    <hr class="hr"/>
+
+                                    <button onclick={() => updateEntryType(entry.id, 4)} type="button" class="btn preset-filled">
+                                        Urlaub
+                                        <TreePalm />
+                                    </button>
+
+                                    <button onclick={() => updateEntryType(entry.id, 3)} type="button" class="btn preset-filled">
+                                        Krank
+                                        <Hospital />
+                                    </button>
+
+                                    <button onclick={() => updateEntryType(entry.id, 2)} type="button" class="btn preset-filled">
+                                        Feiertag
+                                        <PartyPopper />
                                     </button>
                                 </div>
                             {/snippet}
@@ -230,7 +296,7 @@ const addNew = () => {
                             {/snippet}
 
                             {#snippet body()}
-                                <div class="flex flex-col gap-2 border-b pb-4 mb-4">
+                                <div class="flex flex-col gap-2 pb-4 mb-4">
                                     <label>
                                         <span class="label-text">Beginn</span>
                                         <input class="input bg-surface-50" step="1800" type="time" placeholder="Beginn (8:00)" bind:value={start}/>
@@ -246,6 +312,23 @@ const addNew = () => {
                                     <button onclick={() => saveForDay(dayIndex)} type="button" class="btn preset-filled">
                                         Tag hinzufügen
                                         <ChevronDown />
+                                    </button>
+
+                                    <hr class="hr"/>
+
+                                    <button onclick={() => saveEntryType(dayIndex!, 4)} type="button" class="btn preset-filled">
+                                        Urlaub
+                                        <TreePalm />
+                                    </button>
+
+                                    <button onclick={() => saveEntryType(dayIndex!, 3)} type="button" class="btn preset-filled">
+                                        Krank
+                                        <Hospital />
+                                    </button>
+
+                                    <button onclick={() => saveEntryType(dayIndex!, 2)} type="button" class="btn preset-filled">
+                                        Feiertag
+                                        <PartyPopper />
                                     </button>
                                 </div>
                             {/snippet}

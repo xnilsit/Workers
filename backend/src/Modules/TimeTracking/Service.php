@@ -66,17 +66,25 @@ final class Service
         $entriesByDay = [];
         $totalHours = 0.0;
         foreach ($timeSheet->MonthlyTimeSheetEntries as $entry) {
-            $workedMinutes = ($entry->end->getTimestamp() - $entry->start->getTimestamp()) / 60 - $entry->breakDuration;
-            $entryHours = round($workedMinutes / 60, 2);
-            $totalHours += $entryHours;
+            if ($entry->type === TimeSheetEntryType::WORK && $entry->start !== null && $entry->end !== null) {
+                $workedMinutes = ($entry->end->getTimestamp() - $entry->start->getTimestamp()) / 60 - $entry->breakDuration;
+                $entryHours = round($workedMinutes / 60, 2);
+                $totalHours += $entryHours;
+            } elseif (in_array($entry->type, [TimeSheetEntryType::VACATION, TimeSheetEntryType::SICK_LEAVE, TimeSheetEntryType::HOLIDAY], true)) {
+                $entryHours = 8.0;
+                $totalHours += $entryHours;
+            } else {
+                $entryHours = 0.0;
+            }
 
             $entriesByDay[$entry->day] = new MonthlyTimeSheetEntryResponseDto(
                 $entry->id,
                 $entry->day,
-                $entry->start->format('H:i'),
+                $entry->start?->format('H:i'),
                 $entry->breakDuration,
-                $entry->end->format('H:i'),
+                $entry->end?->format('H:i'),
                 $entryHours,
+                strtolower($entry->type->name),
             );
         }
 
@@ -149,13 +157,21 @@ final class Service
             return new Error("TimeSheetNotFound", 404);
         }
 
-        $entry = $this->factory->createEntry(
-            $timeSheet,
-            $data->day,
-            new \DateTimeImmutable($data->start),
-            $data->breakDuration,
-            new \DateTimeImmutable($data->end)
-        );
+        if ($data->type !== null) {
+            $entry = $this->factory->createEntryForType(
+                $timeSheet,
+                (int) $data->day,
+                TimeSheetEntryType::from($data->type)
+            );
+        } else {
+            $entry = $this->factory->createEntry(
+                $timeSheet,
+                (int) $data->day,
+                new \DateTimeImmutable($data->start),
+                (int) $data->breakDuration,
+                new \DateTimeImmutable($data->end)
+            );
+        }
 
         try {
             $this->repo->saveEntry($entry, true);
@@ -175,10 +191,18 @@ final class Service
             return new Error("EntryNotFound", 404);
         }
 
-        $entry->day = $data->day;
-        $entry->start = new \DateTimeImmutable($data->start);
-        $entry->breakDuration = $data->breakDuration;
-        $entry->end = new \DateTimeImmutable($data->end);
+        if ($data->type !== null) {
+            $entry->type = TimeSheetEntryType::from($data->type);
+            $entry->start = null;
+            $entry->breakDuration = null;
+            $entry->end = null;
+        } else {
+            $entry->day = (int) $data->day;
+            $entry->start = new \DateTimeImmutable($data->start);
+            $entry->breakDuration = (int) $data->breakDuration;
+            $entry->end = new \DateTimeImmutable($data->end);
+            $entry->type = TimeSheetEntryType::WORK;
+        }
 
         try {
             $this->repo->saveEntry($entry, true);

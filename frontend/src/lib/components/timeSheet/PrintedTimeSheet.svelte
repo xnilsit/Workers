@@ -22,10 +22,21 @@ let { timeSheet } = $props();
                 {#if entry}
                 <tr>
                     <td class="text-left">{entry.day}</td>
-                    <td class="text-left">{entry.start}h</td>
-                    <td class="text-center">{entry.breakDuration} Min</td>
-                    <td class="text-right">{entry.end}h</td>
-                    <td class="text-right">{entry.totalHours}h</td>
+                    {#if entry.type === 'work'}
+                        <td class="text-left">{entry.start}h</td>
+                        <td class="text-center">{entry.breakDuration} Min</td>
+                        <td class="text-right">{entry.end}h</td>
+                        <td class="text-right">{entry.totalHours}h</td>
+                    {:else if entry.type === 'vacation'}
+                        <td colspan="3">Urlaub</td>
+                        <td class="text-right">{entry.totalHours}h</td>
+                    {:else if entry.type === 'sick_leave'}
+                        <td colspan="3">Krank</td>
+                        <td class="text-right">{entry.totalHours}h</td>
+                    {:else if entry.type === 'holiday'}
+                        <td colspan="3">Feiertag</td>
+                        <td class="text-right">{entry.totalHours}h</td>
+                    {/if}
                 </tr>
                 {:else}
                 <tr class="opacity-30">

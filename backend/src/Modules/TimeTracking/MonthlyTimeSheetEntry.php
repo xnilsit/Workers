@@ -19,12 +19,15 @@ class MonthlyTimeSheetEntry extends Entity
     #[ORM\Column]
     public int $day;
 
-    #[ORM\Column(type: "time_immutable")]
-    public \DateTimeImmutable $start;
+    #[ORM\Column(type: "time_immutable", nullable: true)]
+    public ?\DateTimeImmutable $start = null;
 
-    #[ORM\Column]
-    public int $breakDuration;
+    #[ORM\Column(nullable: true)]
+    public ?int $breakDuration = null;
 
-    #[ORM\Column(type: "time_immutable")]
-    public \DateTimeImmutable $end;
+    #[ORM\Column(type: "time_immutable", nullable: true)]
+    public ?\DateTimeImmutable $end = null;
+
+    #[ORM\Column(enumType: TimeSheetEntryType::class)]
+    public TimeSheetEntryType $type = TimeSheetEntryType::WORK;
 }

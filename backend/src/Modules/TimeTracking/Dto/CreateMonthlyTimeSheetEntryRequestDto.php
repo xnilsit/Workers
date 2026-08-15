@@ -8,15 +8,36 @@ class CreateMonthlyTimeSheetEntryRequestDto
 {
     #[Assert\NotBlank]
     #[Assert\Range(min: 1, max: 31)]
-    public int $day;
+    public ?int $day = null;
 
-    #[Assert\NotBlank]
-    public string $start;
+    #[Assert\When(
+        expression: 'this.type === null',
+        constraints: [new Assert\NotBlank],
+    )]
+    public ?string $start = null;
 
-    #[Assert\NotBlank]
-    #[Assert\GreaterThanOrEqual(0)]
-    public int $breakDuration;
+    #[Assert\When(
+        expression: 'this.type === null',
+        constraints: [
+            new Assert\NotBlank,
+            new Assert\GreaterThanOrEqual(0),
+        ],
+    )]
+    public ?int $breakDuration = null;
 
-    #[Assert\NotBlank]
-    public string $end;
+    #[Assert\When(
+        expression: 'this.type === null',
+        constraints: [new Assert\NotBlank],
+    )]
+    public ?string $end = null;
+
+    #[Assert\When(
+        expression: 'this.start === null && this.breakDuration === null && this.end === null',
+        constraints: [new Assert\NotBlank],
+    )]
+    #[Assert\When(
+        expression: 'this.type !== null',
+        constraints: [new Assert\Choice(choices: [2, 3, 4])],
+    )]
+    public ?int $type = null;
 }

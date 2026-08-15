@@ -34,6 +34,20 @@ class Factory
         $entry->start = $start;
         $entry->breakDuration = $breakDuration;
         $entry->end = $end;
+        $entry->type = TimeSheetEntryType::WORK;
+
+        return $entry;
+    }
+
+    public function createEntryForType(
+        MonthlyTimeSheet $timeSheet,
+        int $day,
+        TimeSheetEntryType $type
+    ): MonthlyTimeSheetEntry {
+        $entry = new MonthlyTimeSheetEntry();
+        $entry->monthlyTimeSheet = $timeSheet;
+        $entry->day = $day;
+        $entry->type = $type;
 
         return $entry;
     }
