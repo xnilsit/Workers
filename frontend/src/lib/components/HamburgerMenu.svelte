@@ -1,7 +1,7 @@
 <script lang="ts">
 import { invalidateAll } from "$app/navigation";
 import { auth } from "$lib/auth.svelte";
-import { BottleWine, ChevronRight, Cog, LogOut, NotebookPen, Settings, UserPen } from "@lucide/svelte";
+import { BottleWine, ChevronRight, Clock, Cog, LogOut, NotebookPen, Settings, UserPen } from "@lucide/svelte";
 
 let { open = $bindable<boolean>(), menuBtn } = $props();
 
@@ -9,6 +9,7 @@ const menuItems = [
     { icon: NotebookPen, label: 'Lieferscheine', href: '/delivery-note/list/1' },
     { icon: BottleWine, label: 'Artikel', href: '/products/list/all/1' },
     { icon: UserPen, label: 'Kunden', href: '/customers' },
+    { icon: Clock, label: 'Zeiterfassung', href: '/time-tracking' },
 ];
 
 let nav = $state<HTMLElement>();
@@ -22,9 +23,9 @@ const handleClick = (event: MouseEvent) => {
 
 <svelte:document on:click={handleClick} />
 
-<nav bind:this={nav} class="{open ? 'visible slide-in' : 'slide-out invisible'} pt-4 flex flex-col w-9/12 h-screen fixed top-0 bg-surface-100-900 z-50 shadow-md [&>a]:border-surface-950">
+<nav bind:this={nav} class="{open ? 'visible slide-in' : 'slide-out invisible'} pt-4 flex flex-col lg:w-2/12 md:w-4/12 w-9/12 h-screen fixed top-0 bg-surface-100-900 z-50 shadow-md [&>a]:border-surface-950">
     {#each menuItems as item}
-        <a onclick={() => open = false} class="px-2 py-4 flex justify-between items-center" href={item.href}>
+        <a onclick={() => open = false} class="px-2 py-4 flex justify-between items-center hover:bg-surface-200" href={item.href}>
             <div class="flex gap-2 items-center">
                 <item.icon />
                 {item.label}
@@ -33,13 +34,13 @@ const handleClick = (event: MouseEvent) => {
         </a>
     {/each}
 
-    <a href="/settings/account" onclick={() => open = false} class="px-2 py-4  flex justify-between items-center border-t mt-8">
+    <a href="/settings/account" onclick={() => open = false} class="px-2 py-4  flex justify-between items-center border-t mt-8 hover:bg-surface-200">
         <div class="flex gap-2 items-center">
             <Settings />
             Einstellungen
         </div>
     </a>
-    <button onclick={async () => {await auth.logout(); invalidateAll(); open = false;}} class="px-2 py-4 flex gap-2 items-center">
+    <button onclick={async () => {await auth.logout(); invalidateAll(); open = false;}} class="px-2 py-4 flex gap-2 items-center hover:bg-surface-200">
         <LogOut />
         Ausloggen
     </button>
