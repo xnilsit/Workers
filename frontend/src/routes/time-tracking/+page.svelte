@@ -1,7 +1,7 @@
 <script lang="ts">
 import { invalidateAll } from "$app/navigation";
 import PageHeadline from "$lib/components/PageHeadline.svelte";
-import SlidingOverlay from "$lib/components/SlidingOverlay.svelte";
+import Drawer from "$lib/components/Drawer.svelte";
 import TopNavigation from "$lib/components/TopNavigation.svelte";
 import { fetchApi } from "$lib/fetchApi";
 import { Bell, CalendarClock, ChevronDown, ChevronRight, Hospital, LayoutList, PartyPopper, Pen, TreePalm } from "@lucide/svelte";
@@ -158,7 +158,7 @@ const addNew = () => {
     {/if}
 
     {#if newEntry}
-        <SlidingOverlay close={() => newEntry = false}>
+        <Drawer close={() => newEntry = false}>
              {#snippet title()}
                 Neuer Eintrag Heute
              {/snippet}
@@ -200,7 +200,7 @@ const addNew = () => {
                     </button>
                 </div>
              {/snippet}
-        </SlidingOverlay>
+        </Drawer>
     {/if}
 
     {#if data.timeSheet}
@@ -235,7 +235,7 @@ const addNew = () => {
                     </div>
 
                     {#if editingEntryId === entry.id}
-                        <SlidingOverlay close={() => editingEntryId = null}>
+                        <Drawer close={() => editingEntryId = null}>
                             {#snippet title()}
                                 Eintrag für Tag {entry.day} bearbeiten
                             {/snippet}
@@ -277,7 +277,7 @@ const addNew = () => {
                                     </button>
                                 </div>
                             {/snippet}
-                        </SlidingOverlay>
+                        </Drawer>
                     {/if}
                 {:else if index < new Date().getDate() - 1}
                     <div style="grid-template-columns: 6% auto;" class="grid gap-2 border-b w-full bg-surface-100-900 px-2">
@@ -290,7 +290,7 @@ const addNew = () => {
                     </div>
 
                     {#if dayIndex !== null}
-                        <SlidingOverlay close={() => dayIndex = null}>
+                        <Drawer close={() => dayIndex = null}>
                             {#snippet title()}
                                 Neuer Eintrag für Tag {dayIndex}
                             {/snippet}
@@ -332,7 +332,7 @@ const addNew = () => {
                                     </button>
                                 </div>
                             {/snippet}
-                        </SlidingOverlay>
+                        </Drawer>
                     {/if}
                 {/if}
             {/each}

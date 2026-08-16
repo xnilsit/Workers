@@ -30,6 +30,6 @@
     }
 }
 
-input:focus-visible {
+input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-visible {
     outline: none !important;
 }

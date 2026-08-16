@@ -7,7 +7,7 @@ let { close, title, body } = $props();
 
 <div transition:slide class="fixed top-full -translate-y-full inset-0 z-50 bg-surface-100 text-surface-950 flex flex-col w-full h-4/6 rounded-2xl">
     <div class="flex justify-between p-4 border-b">
-        <div class="font-bold">{@render title()}</div>
+        <div class="font-bold flex items-center">{@render title()}</div>
 
         <button onclick={close}>
             <X />

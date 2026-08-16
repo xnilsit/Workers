@@ -4,7 +4,7 @@
 	--base-font-color-dark: var(--color-surface-50);
 	--base-font-family: Seravek, 'Gill Sans Nova', Ubuntu, Calibri, 'DejaVu Sans', source-sans-pro, sans-serif;
 	--base-font-size: 16px;
-	--base-line-height: 16px;
+	--base-line-height: norma;
 	--base-font-weight: normal;
 	--base-font-style: normal;
 	--base-letter-spacing: -0.05em;

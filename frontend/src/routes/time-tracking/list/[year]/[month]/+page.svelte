@@ -1,7 +1,7 @@
 <script lang="ts">
 import { invalidateAll } from '$app/navigation';
 import PageHeadline from '$lib/components/PageHeadline.svelte';
-import SlidingOverlay from '$lib/components/SlidingOverlay.svelte';
+import Drawer from '$lib/components/Drawer.svelte';
 import PrintedTimeSheet from '$lib/components/timeSheet/PrintedTimeSheet.svelte';
 import TopNavigation from '$lib/components/TopNavigation.svelte';
 import { fetchApi } from '$lib/fetchApi';
@@ -109,7 +109,7 @@ const editEntry = (entryId: string) => {
                     </div>
 
                     {#if editingEntryId === entry.id}
-                        <SlidingOverlay close={() => editingEntryId = null}>
+                        <Drawer close={() => editingEntryId = null}>
                             {#snippet title()}
                                 Eintrag für Tag {entry.day} bearbeiten
                             {/snippet}
@@ -145,7 +145,7 @@ const editEntry = (entryId: string) => {
                                     </button>
                                 </div>
                             {/snippet}
-                        </SlidingOverlay>
+                        </Drawer>
                     {/if}
                 {:else}
                     <div style="grid-template-columns: 6% auto;" class="grid gap-2 border-b w-full bg-surface-100-900 px-2">
@@ -157,7 +157,7 @@ const editEntry = (entryId: string) => {
                     </div>
 
                     {#if addingDay === index + 1}
-                        <SlidingOverlay close={() => addingDay = null}>
+                        <Drawer close={() => addingDay = null}>
                             {#snippet title()}
                                 Neuer Eintrag für Tag {addingDay}
                             {/snippet}
@@ -193,7 +193,7 @@ const editEntry = (entryId: string) => {
                                     </button>
                                 </div>
                             {/snippet}
-                        </SlidingOverlay>
+                        </Drawer>
                     {/if}
                 {/if}
             {/each}
